@@ -22,19 +22,22 @@ Aka     1:2/3
 ourAka  1:2/3.4
 Email   hismail@address.com
 
-The other file to change, 'pkt2mail.msg' is the text that will appear in the
-body of the message. If the receiving system uses an automated email system
-(like mail2pkt, transnet or fido2int) it will ignore it, but when mailing a
-non automated system, this text will make sense.
+The other file you should change, 'pkt2mail.msg' is the text that will
+appear in the body of the message. If the receiving system uses an automated
+email system (like mail2pkt, transnet or fido2int) it will ignore it, but
+when mailing a non automated system, this text will make sense to the human
+that receives the mail.
 
 
 Notes
 -----
 
-PKT2MAIL will process each link that finds in fidoconfig. If it finds an
-echomail hold flavour, it won't mail anything. So, if you don't want to
-process a link, wether don't put his email address in your fidoconfig file or,
-mark his echomail flavour as hold in fidoconfig.
+PKT2MAIL will process each link that finds in fidoconfig that has the 'normal'
+echomail flavour. So, if a link has a crash flavour, your mailer (BT/XE for
+example) will call and if he has hold, it is supposed that your link will
+call you, so PKT2MAIL won't mail anything.
+If you don't want to process a link and even mark his files as normal, don't
+put his email address in your fidoconfig file.
 
 Actually, when sending netmail packets, only crash packets are mailed. However,
 this may change in the future.

@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------------
- * PKT-TO-MAIL v0.1                                            Nov 5th, 1999
+ * PKT-TO-MAIL v0.1                                           Nov 29th, 1999
  * --------------------------------------------------------------------------
  *   
  *   This program routes via email any FTN Network packet, with MIME64
@@ -126,10 +126,8 @@ int processEcho(s_fidoconfig *c, int n)
 
     if (c->links[n].echoMailFlavour == normal)
         strcpy(flavourSuffix, "flo");
-    else if (c->links[n].echoMailFlavour == crash)
-        strcpy(flavourSuffix, "clo");
-    else if (c->links[n].echoMailFlavour == direct)
-        strcpy(flavourSuffix, "dlo");
+    else
+        return 2;
 	 
     if (c->links[n].hisAka.point != 0) {
         sprintf(pntDir, "%04x%04x.pnt/", c->links[n].hisAka.net, c->links[n].hisAka.node);
@@ -187,7 +185,7 @@ int processNetmail(s_fidoconfig *c, int n)
     char flavourSuffix[8];
     char fullPath[128];
 
-    /* only route crash links, this can change in the future */
+    /* only route crash netmail, this can change in the future */
     strcpy(flavourSuffix, "cut");
 
     if (c->links[n].hisAka.point != 0) {
