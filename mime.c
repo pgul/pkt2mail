@@ -1,12 +1,12 @@
 /* --------------------------------------------------------------------------
- * PKT-TO-MAIL v0.1                                            Nov 5th, 1999
+ * PKT-TO-MAIL v0.2                                            Jan 22nd, 2000
  * --------------------------------------------------------------------------
  *
  *   This file is part of pkt2mail. It was a modified from mpack's source
  *   to fit pkt2mail needs.
  * 
  *
- *   Copyright (C) 1999  German Theler
+ *   Copyright (C) 1999-2000  German Theler
  *       Email: kuroshivo@bigfoot.com
  *        Fido: 4:905/210
  *

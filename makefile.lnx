@@ -1,7 +1,6 @@
-# Linux
-
-# change to your needs
-CFGDIR  = /etc/fido
+# change this to point to your config directory
+#CFGDIR = /etc/fido
+CFGDIR = /home/fido/cfg
 
 include ../huskymak.cfg
 
@@ -14,7 +13,7 @@ LIBS    = -lsmapilnx -lfidoconfig
 all: pkt2mail 
 
 pkt2mail: pkt2mail.c
-	$(CC) -DUNIX -I$(INCDIR) -L$(LIBDIR) $(LIBS) $(IBOPT) $(OPT) $(WARN) -o pkt2mail pkt2mail.c
+	$(CC) -D$(OSTYPE) -I$(INCDIR) -L$(LIBDIR) $(LIBS) $(IBOPT) $(OPT) $(WARN) -o pkt2mail pkt2mail.c
 
 clean:
 	-rm -f *.o

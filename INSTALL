@@ -12,13 +12,11 @@
 
 2.  edit pkt2mail.h and change the #define's to fit your needs
 
-3a. copy the appropiate ./makefile.??? to ./Makefile
-
-3b. take a look at the makefile and change the cfg directory to the path where
+3a. take a look at the makefile and change the cfg directory to the path where
     your main fidoconfig file resides, and make sure it is the same that
     appears in pkt2mail.h
 
-3c. make, install and/or clean:
+3b. make, install and/or clean:
 	$ make
 	# make install
 	$ make clean

@@ -1,11 +1,11 @@
 /* --------------------------------------------------------------------------
- * PKT-TO-MAIL v0.1                                           Nov 29th, 1999
+ * PKT-TO-MAIL v0.2                                           Jan 22nd, 2000
  * --------------------------------------------------------------------------
  *   
  *   This program routes via email any FTN Network packet, with MIME64
- *   encoding. Requires smapilnx and fidoconfig libraries to compile.
+ *   encoding.
  *
- *   Copyright (C) 1999  German Theler
+ *   Copyright (C) 1999-2000  German Theler
  *       Email: kuroshivo@bigfoot.com
  *        Fido: 4:905/210
  *
@@ -35,6 +35,30 @@
 
 #include "pkt2mail.h"
 #include "mime.c"
+
+int log(char *string, char *dir)
+{
+    char *name;
+    char date[40];
+    FILE *logFile;
+    time_t t;
+
+    time(&t);
+    strftime(date, 40, "%a %d %b - %H:%M:%S", localtime(&t));
+
+    if ((name = malloc(strlen(dir) + 13)) == NULL)
+        return -2;
+    sprintf(name, "%spkt2mail.log", dir);
+
+    if ((logFile = fopen(name, "a")) == NULL)
+        return -1;
+    fprintf(logFile, "%s  %s", date, string);
+    fclose(logFile);
+
+    return 0;
+}
+
+
 
 int printBody(FILE *output)
 {
@@ -71,21 +95,30 @@ int encodeAndSend(s_fidoconfig *c, char *fileName, int n)
 
 
     sprintf(buff, "%spkt2mail", c->tempOutbound);
-    if ((output = fopen(buff, "wt")) == NULL)
+    if ((output = fopen(buff, "wt")) == NULL) {
+        sprintf(buff, "Can't write to %spkt2mail\n", c->tempOutbound);
+        log(buff, c->logFileDir);
         return 1;
-    if ((input = fopen(realFileName, "r")) == NULL)
+    }
+    if ((input = fopen(realFileName, "r")) == NULL) {
+        sprintf(buff, "Can't read from %s\n", realFileName);
+        log(buff, c->logFileDir);
         return 2;
+    }
 
     fprintf(output, "Mime-Version: 1.0\n");
     fprintf(output, "Subject: %s\n", SUBJECT);
     fprintf(output, "Content-Type: multipart/mixed; boundary=\"-pkt2mailboundary\"\n\n");
     fprintf(output, "This MIME encoded message is a FTN packet created by\n");
-    fprintf(output, "PKT2MAIL. Available at http://www.rafaela.com/fido/email");
+    fprintf(output, "PKT2MAIL. Available at http://husky.physcip.uni-stuttgart.de");
 
     fprintf(output, "\n---pkt2mailboundary\n\n");
 
-    if (printBody(output) == 1)
+    if (printBody(output) == 1) {
+        sprintf(buff, "Can't read from %s", DESCFILE);
+        log(buff, c->logFileDir);
         return 3;
+    }
         
     fprintf(output, "\n---pkt2mailboundary\n");
 
@@ -123,11 +156,16 @@ int processEcho(s_fidoconfig *c, int n)
 
     char pktName[256];
 
+    char buffer[256];
+
 
     if (c->links[n].echoMailFlavour == normal)
         strcpy(flavourSuffix, "flo");
-    else
+    else {
+        sprintf(buffer, "Skipping %s, has not normal echomail flavour\n", c->links[n].name);
+        log(buffer, c->logFileDir);
         return 2;
+    }
 	 
     if (c->links[n].hisAka.point != 0) {
         sprintf(pntDir, "%04x%04x.pnt/", c->links[n].hisAka.net, c->links[n].hisAka.node);
@@ -152,16 +190,18 @@ int processEcho(s_fidoconfig *c, int n)
             strip(pktName);   /* remove the final \n */
 
             if (encodeAndSend(c, pktName, n) == 0)
-                if (c->links[n].hisAka.point != 0)
-                    printf(" + %d:%d/%d.%d\t\tEchomail\n", c->links[n].hisAka.zone,
+                if (c->links[n].hisAka.point != 0) {
+                    sprintf(buffer, "Sending echomail to %d:%d/%d.%d\n", c->links[n].hisAka.zone,
                                                            c->links[n].hisAka.net,
                                                            c->links[n].hisAka.node,
                                                            c->links[n].hisAka.point);
-                else
-                    printf(" + %d:%d/%d\t\tEchomail\n", c->links[n].hisAka.zone,
+                    log(buffer, c->logFileDir);
+                } else {
+                    sprintf(buffer, "Sending echomail to %d:%d/%d", c->links[n].hisAka.zone,
                                                            c->links[n].hisAka.net,
                                                            c->links[n].hisAka.node);
-
+                    log(buffer, c->logFileDir);                                                           
+                }
 
             else
                 return 1;
@@ -185,6 +225,8 @@ int processNetmail(s_fidoconfig *c, int n)
     char flavourSuffix[8];
     char fullPath[128];
 
+    char buffer[255];
+
     /* only route crash netmail, this can change in the future */
     strcpy(flavourSuffix, "cut");
 
@@ -207,15 +249,18 @@ int processNetmail(s_fidoconfig *c, int n)
         fclose(pktFile);
 
         if (encodeAndSend(c, fullPath, n) == 0)
-            if (c->links[n].hisAka.point != 0)
-                printf(" + %d:%d/%d.%d\t\tNetmail\n", c->links[n].hisAka.zone,
+            if (c->links[n].hisAka.point != 0) {
+                sprintf(buffer, "Sending netmail to %d:%d/%d.%d\n", c->links[n].hisAka.zone,
                                                       c->links[n].hisAka.net,
                                                       c->links[n].hisAka.node,
                                                       c->links[n].hisAka.point);
-            else
-                printf(" + %d:%d/%d\t\tNetmail\n", c->links[n].hisAka.zone,
+                log(buffer, c->logFileDir);
+            } else {
+                sprintf(buffer, "Sending netmail to %d:%d/%d\n", c->links[n].hisAka.zone,
                                                       c->links[n].hisAka.net,
                                                       c->links[n].hisAka.node);
+                log(buffer, c->logFileDir);
+            }
         else
             return 1;
 
@@ -249,24 +294,24 @@ int main(void)
     s_fidoconfig *config;
     int error;
 
-    printf("pkt-to-mail v0.1\n");
-
     if ((config = readConfig()) == NULL) {
-
-        /* TODO: write logs */
-    
-        printf(" * Error reading config file! Aborting... \n");
+        log("Error reading config file.\n", config->logFileDir);
         return -1;
     }
 
     error = send(config);
 
     switch (error) {
+        case 0:
+            log("ptk2mail finnished OK\n", config->logFileDir);
+            break;
         case 1:
-            printf(" - Error processing echomail.\n");
+            fprintf(stderr, "Error processing echomail\n");
+            log("Error processing echomail.\n", config->logFileDir);
         break;
         case 2:
-            printf(" - Error processing netmail.\n");
+            fprintf(stderr, "Error processing netmail\n");
+            log("Error processing netmail.\n", config->logFileDir);
         break;
         
     }

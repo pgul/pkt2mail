@@ -1,7 +1,6 @@
 This message contains a mime enconded FidoNet packet.
 
-PKT-TO-MAIL v0.1 is available at http://www.rafaela.com/fido/email
+PKT-TO-MAIL is available at http://husky.physcip.uni-stuttgart.de
 
 German Theler
 kuroshivo@bigfoot.com
-www.rafaela.com/fido
