@@ -140,7 +140,7 @@ int encodeAndSend(s_fidoconfig *c, char *fileName, int n)
     fprintf(output, "Content-Transfer-Encoding: base64\n");
     fprintf(output, "Content-Disposition: inline; filename=\"%s\"\n\n", fileName);
 
-    to64(input, output);
+    toBase64(input, output);
 
     fprintf(output, "\n---pkt2mailboundary-");
 

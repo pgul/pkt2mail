@@ -72,10 +72,69 @@
 #include <string.h>
 #include <ctype.h>
 
-static char basis_64[] =
-   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+#include "mime.h"
 
-int to64(FILE *infile, FILE *outfile)
+int toBase64(FILE *inFile, FILE *outFile)
+{
+    int a, b, c, d;
+    int x, y, z;
+    int counter = 0;
+
+    while ((x = getc(inFile)) != EOF) {
+        if (counter >= 64) {
+            fprintf(outFile, "\n");
+            counter = 0;
+        } else
+            counter += 4;
+            
+        if ((y = getc(inFile)) == EOF) {
+            a = x >> 2;
+            b = x << 4 & 0x3F;
+            putc(base64[a], outFile);
+            putc(base64[b], outFile);
+            putc('=', outFile);
+            putc('=', outFile);
+
+            fprintf(outFile, "\n");
+
+            return 0;
+        }
+
+        if ((z = getc(inFile)) == EOF) {
+            a = x >> 2;
+            b = (x << 4 | y >> 4) & 0x3F;
+            c = y << 2 & 0x3F;
+
+            putc(base64[a], outFile);
+            putc(base64[b], outFile);
+            putc(base64[c], outFile);
+            putc('=', outFile);
+
+            fprintf(outFile, "\n");
+            
+            return 0;
+        }
+
+        a = x >> 2;
+        b = (x << 4 | y >> 4) & 0x3F;
+        c = (y << 2 | z >> 6) & 0x3F;
+        d = z & 0x3F;
+
+        putc(base64[a], outFile);
+        putc(base64[b], outFile);
+        putc(base64[c], outFile);
+        putc(base64[d], outFile);
+    }
+
+    fprintf(outFile, "\n");
+    return 0;
+    
+}
+
+        
+
+/*
+int toBase64(FILE *infile, FILE *outfile)
 {
     int c1, c2, c3, ct=0;
 
@@ -120,4 +179,4 @@ void output64chunk(int c1, int c2, int c3, int pads, FILE *outfile)
     }
 }
 
-
+  */
