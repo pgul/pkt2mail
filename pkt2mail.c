@@ -336,7 +336,7 @@ int main(void)
     s_fidoconfig *config;
     int error;
 
-    if ((config = readConfig()) == NULL) {
+    if ((config = readConfig(NULL)) == NULL) {
         log("[!] Error reading config file.\n", config, 1);
         return -1;
     }
