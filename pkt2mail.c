@@ -31,7 +31,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-#include <fidoconfig.h>
+#include <fidoconfig/fidoconfig.h>
 
 #include "pkt2mail.h"
 #include "mime.c"

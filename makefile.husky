@@ -3,10 +3,10 @@ include ../huskymak.cfg
 CDEFS   = -D$(OSTYPE) $(ADDCDEFS)
 
 ifeq ($(DEBUG), 1)
-  CFLAGS  = -I../smapi -I$(INCDIR) $(WARNFLAGS) $(DEBCFLAGS)
+  CFLAGS  = -I$(INCDIR) $(WARNFLAGS) $(DEBCFLAGS)
   LFLAGS  = $(DEBLFLAGS)
 else
-  CFLAGS  = -I../smapi -I$(INCDIR) $(WARNFLAGS) $(OPTCFLAGS)
+  CFLAGS  = -I$(INCDIR) $(WARNFLAGS) $(OPTCFLAGS)
   LFLAGS  = $(OPTLFLAGS)
 endif
 
