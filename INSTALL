@@ -15,8 +15,4 @@
 	$ make install
 	$ make clean
 	
-    Compiling pkt2mail without husky support makes no sense, so be sure to
-    use makefile.husky as the main makefile. Furthermore, the linux makefile
-    won't be updated anymore and it is _not_ recommended to use it.
-
 3.  Configure it. Details can be found in README.
