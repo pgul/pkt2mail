@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------------
- * PKT-TO-MAIL v0.2                                           Jan 22nd, 2000
+ * PKT-TO-MAIL v0.2                                           Jan 30th, 2000
  * --------------------------------------------------------------------------
  *   
  *   This program routes via email any FTN Network packet, with MIME64
@@ -68,7 +68,7 @@ int printBody(FILE *output)
     if ((desc = fopen(DESCFILE, "r")) == NULL)
         return 1;
         
-    while ((c = fgetc(desc)) == EOF)
+    while ((c = fgetc(desc)) != EOF)
         putc(c, output);
     fclose(desc);
 
@@ -89,10 +89,9 @@ int encodeAndSend(s_fidoconfig *c, char *fileName, int n)
     if ((s = strrchr(fileName, '/')))
         fileName = s + 1;
 
-    /* if it is a netmail pkt */
+    /* if it is a netmail pkt, change the name */
     if (fileName[10] == 'u' && fileName[11] == 't')
         sprintf(fileName, "%04x.pkt", (unsigned int)time(0));
-
 
     sprintf(buff, "%spkt2mail", c->tempOutbound);
     if ((output = fopen(buff, "wt")) == NULL) {
@@ -106,14 +105,28 @@ int encodeAndSend(s_fidoconfig *c, char *fileName, int n)
         return 2;
     }
 
+    /* print some headers */
+    fprintf(output, "X-Mailer: pkt2mail v%s\n", VERSION);
+    fprintf(output, "From: \"%s\"\n", c->sysop);
+    fprintf(output, "To: %s\n", c->links[n].email);
+    fprintf(output, "Subject: %s: %d:%d/%d.%d -> %d:%d/%d.%d\n", SUBJECT,
+                                                           c->links[n].ourAka->zone,
+                                                           c->links[n].ourAka->net,
+                                                           c->links[n].ourAka->node,
+                                                           c->links[n].ourAka->point,
+                                                           c->links[n].hisAka.zone,
+                                                           c->links[n].hisAka.net,
+                                                           c->links[n].hisAka.node,
+                                                           c->links[n].hisAka.point);
+
     fprintf(output, "Mime-Version: 1.0\n");
-    fprintf(output, "Subject: %s\n", SUBJECT);
     fprintf(output, "Content-Type: multipart/mixed; boundary=\"-pkt2mailboundary\"\n\n");
     fprintf(output, "This MIME encoded message is a FTN packet created by\n");
     fprintf(output, "PKT2MAIL. Available at http://husky.physcip.uni-stuttgart.de");
 
     fprintf(output, "\n---pkt2mailboundary\n\n");
 
+    /* now the text */
     if (printBody(output) == 1) {
         sprintf(buff, "Can't read from %s\n", DESCFILE);
         log(buff, c->logFileDir);
@@ -122,6 +135,7 @@ int encodeAndSend(s_fidoconfig *c, char *fileName, int n)
         
     fprintf(output, "\n---pkt2mailboundary\n");
 
+    /* and finally the enconded file */
     fprintf(output, "Content-Type: application/octet-stream; name=\"%s\"\n", fileName);
     fprintf(output, "Content-Transfer-Encoding: base64\n");
     fprintf(output, "Content-Disposition: inline; filename=\"%s\"\n\n", fileName);
@@ -152,12 +166,10 @@ int processEcho(s_fidoconfig *c, int n)
     char pntDir[32];
     char zoneSuffix[8];
     char flavourSuffix[8];
-    char fullPath[128];
+    char fullPath[127];
 
-    char pktName[256];
-
-    char buffer[256];
-
+    char pktName[255];
+    char buffer[255];
 
     if (c->links[n].echoMailFlavour == normal)
         strcpy(flavourSuffix, "flo");
@@ -191,18 +203,19 @@ int processEcho(s_fidoconfig *c, int n)
 
             if (encodeAndSend(c, pktName, n) == 0)
                 if (c->links[n].hisAka.point != 0) {
-                    sprintf(buffer, "Sending echomail to %d:%d/%d.%d\n", c->links[n].hisAka.zone,
+                    sprintf(buffer, "Sending echomail to %s (%d:%d/%d.%d)\n", c->links[n].email,
+                                                           c->links[n].hisAka.zone,
                                                            c->links[n].hisAka.net,
                                                            c->links[n].hisAka.node,
                                                            c->links[n].hisAka.point);
                     log(buffer, c->logFileDir);
                 } else {
-                    sprintf(buffer, "Sending echomail to %d:%d/%d\n", c->links[n].hisAka.zone,
+                    sprintf(buffer, "Sending echomail to %s (%d:%d/%d)\n", c->links[n].email,
+                                                           c->links[n].hisAka.zone,
                                                            c->links[n].hisAka.net,
                                                            c->links[n].hisAka.node);
                     log(buffer, c->logFileDir);                                                           
                 }
-
             else
                 return 1;
         }
@@ -250,13 +263,15 @@ int processNetmail(s_fidoconfig *c, int n)
 
         if (encodeAndSend(c, fullPath, n) == 0)
             if (c->links[n].hisAka.point != 0) {
-                sprintf(buffer, "Sending netmail to %d:%d/%d.%d\n", c->links[n].hisAka.zone,
+                sprintf(buffer, "Sending netmail to %s (%d:%d/%d.%d)\n", c->links[n].email,
+                                                      c->links[n].hisAka.zone,
                                                       c->links[n].hisAka.net,
                                                       c->links[n].hisAka.node,
                                                       c->links[n].hisAka.point);
                 log(buffer, c->logFileDir);
             } else {
-                sprintf(buffer, "Sending netmail to %d:%d/%d\n", c->links[n].hisAka.zone,
+                sprintf(buffer, "Sending netmail to %s (%d:%d/%d)\n", c->links[n].email,
+                                                      c->links[n].hisAka.zone,
                                                       c->links[n].hisAka.net,
                                                       c->links[n].hisAka.node);
                 log(buffer, c->logFileDir);
@@ -277,8 +292,7 @@ int send(s_fidoconfig *c)
     /* for every link in fidoconfig... */
     for (i = 0; i < c->linkCount; i++)
         /* that has an email address... */
-        /* and doesn't have hold */
-        if ((c->links[i].email) && (c->links[i].echoMailFlavour != hold)) {
+        if (c->links[i].email) {
             if (processEcho(c, i) == 1)
                 return 1;
 
@@ -303,7 +317,7 @@ int main(void)
 
     switch (error) {
         case 0:
-            log("ptk2mail finnished OK\n", config->logFileDir);
+            log("pkt2mail finnished OK\n", config->logFileDir);
             break;
         case 1:
             fprintf(stderr, "Error processing echomail\n");

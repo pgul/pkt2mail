@@ -1,9 +1,9 @@
 /* --------------------------------------------------------------------------
- * PKT-TO-MAIL v0.2                                            Jan 22nd, 2000
+ * PKT-TO-MAIL v0.2                                            Jan 30th, 2000
  * --------------------------------------------------------------------------
  *   
  *   This program routes via email any FTN Network packet, with MIME64
- *   encoding. Requires smapilnx and fidoconfig libraries to compile.
+ *   encoding.
  *
  *   Copyright (C) 1999-2000  German Theler
  *       Email: kuroshivo@bigfoot.com
@@ -26,11 +26,19 @@
  * --------------------------------------------------------------------------  
  */
 
+/* Full path to a text file that will be used as the email body */
 #define DESCFILE  "/etc/fido/pkt2mail.msg"
 //#define DESCFILE  "/home/fido/cfg/pkt2mail.msg"
-#define SENDMAIL  "/usr/sbin/sendmail"
-#define SUBJECT   "FidoNet Packet - PKT2Mail"
 
+/* A text string that defines the email subject*/
+#define SUBJECT   "FidoNet Packet"
+
+/* Full path to the sendmail binary. This can be a symlink! */
+#define SENDMAIL  "/usr/sbin/sendmail"
+
+
+
+#define VERSION   "0.2"
 #define strip(s)  s[strlen(s)-1] = 0
 
 /* pkt2mail.c */
@@ -44,5 +52,6 @@ int send(s_fidoconfig *c);
 int main(void);
 
 /* mime.c */
+
 int to64(FILE *infile, FILE *outfile);
 void output64chunk(int c1, int c2, int c3, int pads, FILE *outfile);
