@@ -1,0 +1,24 @@
+include ../huskymak.cfg
+
+CDEFS   = -D$(OSTYPE) $(ADDCDEFS)
+CFLAGS  = -I../smapi -I$(INCDIR) -O2 -Wall
+LFLAGS  = -L$(LIBDIR) -lsmapi -lfidoconfig
+
+all: pkt2mail$(EXE)
+
+pkt2mail$(EXE): pkt2mail.c
+	$(CC) $(CDEFS) $(CFLAGS) $(LFLAGS) -o pkt2mail$(EXE) pkt2mail.c
+
+clean:
+	-$(RM) -f *$(OBJ)
+	-$(RM) *.1.gz
+
+distclean: clean
+	-$(RM) pkt2mail$(EXE)
+	
+install:
+	install $(IBOPT) pkt2mail $(BINDIR)
+	cp pkt2mail.msg $(CFGDIR)
+	gzip -c pkt2mail.1 > pkt2mail.1.gz
+	install $(IMOPT) pkt2mail.1.gz $(MANDIR)/man1
+
