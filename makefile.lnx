@@ -1,13 +1,16 @@
 # change this to point to your config directory
 #CFGDIR = /etc/fido
 CFGDIR = /home/fido/cfg
-
-include ../huskymak.cfg
+INCDIR=/usr/local/include
+LIBDIR=/usr/local/lib
+MANDIR=/usr/local/man
 
 CC      = gcc 
 OPT     = -O2
 WARN    = -Wall
 LIBS    = -lsmapilnx -lfidoconfig
+OSTYPE  = UNIX
+IBOPT   = -s
 
 
 all: pkt2mail 
