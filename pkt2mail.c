@@ -36,24 +36,27 @@
 #include "pkt2mail.h"
 #include "mime.c"
 
-int log(char *string, char *dir)
+int log(char *string, s_fidoconfig *c, int level)
 {
     char *name;
     char date[40];
     FILE *logFile;
     time_t t;
 
-    time(&t);
-    strftime(date, 40, "%a %d %b - %H:%M:%S", localtime(&t));
+    if (c->loglevels[0] == 0 || strchr(c->loglevels, level+'0') != NULL) {
+        time(&t);
+        strftime(date, 40, "%a %d %b  %H:%M:%S", localtime(&t));
 
-    if ((name = malloc(strlen(dir) + 13)) == NULL)
-        return -2;
-    sprintf(name, "%spkt2mail.log", dir);
+        if ((name = malloc(strlen(c->logFileDir) + 13)) == NULL)
+            return -2;
 
-    if ((logFile = fopen(name, "a")) == NULL)
-        return -1;
-    fprintf(logFile, "%s  %s", date, string);
-    fclose(logFile);
+        sprintf(name, "%spkt2mail.log", c->logFileDir);
+
+        if ((logFile = fopen(name, "a")) == NULL)
+            return -1;
+        fprintf(logFile, "%d   %s   %s", level, date, string);
+        fclose(logFile);
+    }
 
     return 0;
 }
@@ -78,6 +81,7 @@ int printBody(FILE *output)
 int encodeAndSend(s_fidoconfig *c, char *fileName, int n)
 {
     char buff[255];
+    char random[10];
     char realFileName[255];
     char *s;
 
@@ -89,19 +93,29 @@ int encodeAndSend(s_fidoconfig *c, char *fileName, int n)
     if ((s = strrchr(fileName, '/')))
         fileName = s + 1;
 
-    /* if it is a netmail pkt, change the name */
+    /* change the name to a pseudo-random name!
+     * Actually, this would be a msgid-like routine, but
+     * it is not worth, beacause the receiving system should
+     * cope with same file names (mail2pkt does) */
+    sprintf(random, "%04x", (unsigned int)time(0));
+     
     if (fileName[10] == 'u' && fileName[11] == 't')
-        sprintf(fileName, "%04x.pkt", (unsigned int)time(0));
+        sprintf(fileName, "%s.pkt", random);   /* a netmail pkt */
 
-    sprintf(buff, "%spkt2mail", c->tempOutbound);
+    /* Normally, we wouldn't need to change an echomail bundle's name...
+     * if so, just uncomment the following lines */
+/*    else
+        sprintf(fileName, "%s%s", random, fileName+8);*/
+
+    sprintf(buff, "%s%s", c->tempOutbound, random);
     if ((output = fopen(buff, "wt")) == NULL) {
-        sprintf(buff, "Can't write to %spkt2mail\n", c->tempOutbound);
-        log(buff, c->logFileDir);
+        sprintf(buff, "[!] Can't write to %s%s\n", c->tempOutbound, random);
+        log(buff, c, 1);
         return 1;
     }
     if ((input = fopen(realFileName, "r")) == NULL) {
-        sprintf(buff, "Can't read from %s\n", realFileName);
-        log(buff, c->logFileDir);
+        sprintf(buff, "[!] Can't read from %s\n", realFileName);
+        log(buff, c, 1);
         return 2;
     }
 
@@ -122,20 +136,21 @@ int encodeAndSend(s_fidoconfig *c, char *fileName, int n)
     fprintf(output, "Mime-Version: 1.0\n");
     fprintf(output, "Content-Type: multipart/mixed; boundary=\"-pkt2mailboundary\"\n\n");
     fprintf(output, "This MIME encoded message is a FTN packet created by\n");
-    fprintf(output, "PKT2MAIL. Available at http://husky.physcip.uni-stuttgart.de");
+    fprintf(output, "PKT2MAIL, available at http://husky.physcip.uni-stuttgart.de\n");
+    fprintf(output, "Decode it with MAIL2PKT or any MUA supporting mime.\n");
 
     fprintf(output, "\n---pkt2mailboundary\n\n");
 
     /* now the text */
     if (printBody(output) == 1) {
-        sprintf(buff, "Can't read from %s\n", DESCFILE);
-        log(buff, c->logFileDir);
+        sprintf(buff, "[!] Can't read from %s\n", DESCFILE);
+        log(buff, c, 1);
         return 3;
     }
         
     fprintf(output, "\n---pkt2mailboundary\n");
 
-    /* and finally the enconded file */
+    /* and finally the encoded file */
     fprintf(output, "Content-Type: application/octet-stream; name=\"%s\"\n", fileName);
     fprintf(output, "Content-Transfer-Encoding: base64\n");
     fprintf(output, "Content-Disposition: inline; filename=\"%s\"\n\n", fileName);
@@ -147,10 +162,14 @@ int encodeAndSend(s_fidoconfig *c, char *fileName, int n)
     fclose(output);
     fclose(input);
 
-    sprintf(buff, "%s %s < %spkt2mail", SENDMAIL, c->links[n].email, c->tempOutbound);
-    system(buff);
+    sprintf(buff, "%s %s < %s%s", SENDMAIL, c->links[n].email, c->tempOutbound, random);
+    if (system(buff) != 0) {
+        log("[!] Error while calling sendmail!\n", c, 1);
+        log(strcat(buff, "\n"), c, 1);
+        return -1;
+    }
 
-    sprintf(buff, "%spkt2mail", c->tempOutbound);
+    sprintf(buff, "%s%s", c->tempOutbound, random);
     remove(buff);
     remove(realFileName);
 
@@ -174,8 +193,8 @@ int processEcho(s_fidoconfig *c, int n)
     if (c->links[n].echoMailFlavour == normal)
         strcpy(flavourSuffix, "flo");
     else {
-        sprintf(buffer, "Skipping %s, has not normal echomail flavour\n", c->links[n].name);
-        log(buffer, c->logFileDir);
+        sprintf(buffer, "Skipping %s, has not normal echomail flavour\n", c->links[n].email);
+        log(buffer, c, 2);
         return 2;
     }
 	 
@@ -208,13 +227,13 @@ int processEcho(s_fidoconfig *c, int n)
                                                            c->links[n].hisAka.net,
                                                            c->links[n].hisAka.node,
                                                            c->links[n].hisAka.point);
-                    log(buffer, c->logFileDir);
+                    log(buffer, c, 1);
                 } else {
                     sprintf(buffer, "Sending echomail to %s (%d:%d/%d)\n", c->links[n].email,
                                                            c->links[n].hisAka.zone,
                                                            c->links[n].hisAka.net,
                                                            c->links[n].hisAka.node);
-                    log(buffer, c->logFileDir);                                                           
+                    log(buffer, c, 1);
                 }
             else
                 return 1;
@@ -268,13 +287,13 @@ int processNetmail(s_fidoconfig *c, int n)
                                                       c->links[n].hisAka.net,
                                                       c->links[n].hisAka.node,
                                                       c->links[n].hisAka.point);
-                log(buffer, c->logFileDir);
+                log(buffer, c, 1);
             } else {
                 sprintf(buffer, "Sending netmail to %s (%d:%d/%d)\n", c->links[n].email,
                                                       c->links[n].hisAka.zone,
                                                       c->links[n].hisAka.net,
                                                       c->links[n].hisAka.node);
-                log(buffer, c->logFileDir);
+                log(buffer, c, 1);
             }
         else
             return 1;
@@ -309,23 +328,25 @@ int main(void)
     int error;
 
     if ((config = readConfig()) == NULL) {
-        log("Error reading config file.\n", config->logFileDir);
+        log("[!] Error reading config file.\n", config, 1);
         return -1;
     }
 
-    error = send(config);
+    log("pkt2mail started...\n", config, 3);
 
+    error = send(config);
+    
     switch (error) {
         case 0:
-            log("pkt2mail finnished OK\n", config->logFileDir);
+            log("pkt2mail finnished OK\n", config, 3);
             break;
         case 1:
             fprintf(stderr, "Error processing echomail. See logs for details.\n");
-            log("Error processing echomail.\n", config->logFileDir);
+            log("[!] Error processing echomail.\n", config, 1);
         break;
         case 2:
             fprintf(stderr, "Error processing netmail. See logs for details.\n");
-            log("Error processing netmail.\n", config->logFileDir);
+            log("[!] Error processing netmail.\n", config, 1);
         break;
         
     }

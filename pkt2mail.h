@@ -43,7 +43,7 @@
 
 /* pkt2mail.c */
 
-int log(char *string, char *dir);
+//int log(char *string, char *dir);
 int printBody(FILE *output);
 int encodeAndSend(s_fidoconfig *c, char *fileName, int n);
 int processEcho(s_fidoconfig *c, int n);
