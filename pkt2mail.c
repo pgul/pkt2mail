@@ -115,7 +115,7 @@ int encodeAndSend(s_fidoconfig *c, char *fileName, int n)
     fprintf(output, "\n---pkt2mailboundary\n\n");
 
     if (printBody(output) == 1) {
-        sprintf(buff, "Can't read from %s", DESCFILE);
+        sprintf(buff, "Can't read from %s\n", DESCFILE);
         log(buff, c->logFileDir);
         return 3;
     }
@@ -197,7 +197,7 @@ int processEcho(s_fidoconfig *c, int n)
                                                            c->links[n].hisAka.point);
                     log(buffer, c->logFileDir);
                 } else {
-                    sprintf(buffer, "Sending echomail to %d:%d/%d", c->links[n].hisAka.zone,
+                    sprintf(buffer, "Sending echomail to %d:%d/%d\n", c->links[n].hisAka.zone,
                                                            c->links[n].hisAka.net,
                                                            c->links[n].hisAka.node);
                     log(buffer, c->logFileDir);                                                           
