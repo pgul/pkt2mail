@@ -1,18 +1,28 @@
 include ../huskymak.cfg
 
 CDEFS   = -D$(OSTYPE) $(ADDCDEFS)
-CFLAGS  = -I../smapi -I$(INCDIR) -O2 -Wall
+
+ifeq ($(DEBUG), 1)
+  CFLAGS  = -I../smapi -I$(INCDIR) $(WARNFLAGS) $(DEBCFLAGS)
+  LFLAGS  = $(DEBLFLAGS)
+else
+  CFLAGS  = -I../smapi -I$(INCDIR) $(WARNFLAGS) $(OPTCFLAGS)
+  LFLAGS  = $(OPTLFLAGS)
+endif
 
 ifeq ($(SHORTNAME), 1)
-  LFLAGS  = -L$(LIBDIR) -lsmapi -lfidoconf
+  LIBS  = -L$(LIBDIR) -lsmapi -lfidoconf
 else
-  LFLAGS  = -L$(LIBDIR) -lsmapi -lfidoconfig
+  LIBS  = -L$(LIBDIR) -lsmapi -lfidoconfig
 endif
 
 all: pkt2mail$(EXE)
 
-pkt2mail$(EXE): pkt2mail.c
-	$(CC) $(CDEFS) $(CFLAGS) $(LFLAGS) -o pkt2mail$(EXE) pkt2mail.c
+pkt2mail$(OBJ): pkt2mail.c
+	$(CC) $(CDEFS) $(CFLAGS) $(LFLAGS) -o pkt2mail$(OBJ) pkt2mail.c
+
+pkt2mail$(EXE): pkt2mail$(OBJ)
+	$(CC) $(LFLAGS) -o pkt2mail$(EXE) pkt2mail$(OBJ) $(LIBS)
 
 clean:
 	-$(RM) *$(OBJ)
