@@ -6,7 +6,7 @@
  *   encoding.
  *
  *   Copyright (C) 1999-2000  German Theler
- *       Email: kuroshivo@bigfoot.com
+ *       Email: german@linuxfreak.com
  *        Fido: 4:905/210
  *
  * 
@@ -320,11 +320,11 @@ int main(void)
             log("pkt2mail finnished OK\n", config->logFileDir);
             break;
         case 1:
-            fprintf(stderr, "Error processing echomail\n");
+            fprintf(stderr, "Error processing echomail. See logs for details.\n");
             log("Error processing echomail.\n", config->logFileDir);
         break;
         case 2:
-            fprintf(stderr, "Error processing netmail\n");
+            fprintf(stderr, "Error processing netmail. See logs for details.\n");
             log("Error processing netmail.\n", config->logFileDir);
         break;
         

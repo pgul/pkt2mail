@@ -6,7 +6,7 @@
  *   encoding.
  *
  *   Copyright (C) 1999-2000  German Theler
- *       Email: kuroshivo@bigfoot.com
+ *       Email: german@linuxfreak.com
  *        Fido: 4:905/210
  *
  * 
