@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------------
- * PKT-TO-MAIL v0.2                                            Mar 23rd, 2000
+ * PKT-TO-MAIL v0.2                                            Mar 25th, 2000
  * --------------------------------------------------------------------------
  *
  *   This file is part of pkt2mail. The encoding algorithmn was designed by

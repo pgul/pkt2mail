@@ -6,8 +6,11 @@ PKT-TO-MAIL v0.2
  a link that lives in another city or even another country, and he (or you)
  can't have a full time binkd running, or whatever. This way, you can exchange
  packets without paying long distance bills nor being all the day on-line.
+ The disavantage of email is that the packets are binary files and the email
+ standard only accepts 7-bit characters. So, the file must be encoded in 7 or
+ less bits per char. Thus, the size of the encoded file is a 25% bigger.
  
- To get it running, first install it. See INSTALL for details.
+ To get pkt2mail running, first install it. See INSTALL for details.
 
 
 Config
@@ -15,7 +18,7 @@ Config
 
  Once you have the binary, you should configure the program. To do so, go to
  your fidoconfig file, and add the string Email to each link you want to route
- by email. Say, for example, zyou want to send your pkts to your boss via
+ by email. Say, for example, you want to send your pkts to your boss via
  email. Put this line in his link definition in your config file:
 
 ---cut---cut---
@@ -25,12 +28,20 @@ ourAka  1:2/3.4
 Email   hismail@address.com
 ---cut---cut---
 
- The other file you should change, 'pkt2mail.msg' is the text that will
- appear in the body of the message. If the receiving system uses an automated
- email system (like mail2pkt, transnet or fido2int) it will ignore it, but
- when mailing a non automated system, this text will make sense to the human
- that receives the mail.
+ The other file you should change is 'pkt2mail.msg' and is located in your
+ config directory. This text will appear in the message body. If the receiving
+ system uses an automated email system (like mail2pkt, transnet or fido2int)
+ it will ignore it, but when mailing a non automated system, this text will
+ make sense to the human that receives the mail.
 
+
+Logging
+-------
+ 
+ The file log that pkt2mail uses is located in the logFileDir declared in
+ fidoconfig. It uses 3 levels of login (1 being the most important and 3
+ the less important). You can turn off any of these with the logLevels statment
+ in fidoconfig.
 
 Notes
 -----

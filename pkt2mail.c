@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------------
- * PKT-TO-MAIL v0.2                                           Jan 30th, 2000
+ * PKT-TO-MAIL v0.2                                           Mar 25th, 2000
  * --------------------------------------------------------------------------
  *   
  *   This program routes via email any FTN Network packet, with MIME64
@@ -66,9 +66,18 @@ int log(char *string, s_fidoconfig *c, int level)
 int printBody(FILE *output)
 {
     int c;
+    char *name;
     FILE *desc;
 
-    if ((desc = fopen(DESCFILE, "r")) == NULL)
+    name = malloc(strlen(CFGDIR)+14);
+
+    strcpy(name, CFGDIR);
+    if (name[strlen(name)] != '/')
+        sprintf(name, "%s/pkt2mail.msg", CFGDIR);
+    else
+        sprintf(name, "%spkt2mail.msg", CFGDIR);
+
+    if ((desc = fopen(name, "r")) == NULL)
         return 1;
         
     while ((c = fgetc(desc)) != EOF)
@@ -143,7 +152,7 @@ int encodeAndSend(s_fidoconfig *c, char *fileName, int n)
 
     /* now the text */
     if (printBody(output) == 1) {
-        sprintf(buff, "[!] Can't read from %s\n", DESCFILE);
+        sprintf(buff, "[!] Can't read from %spkt2mail\n", CFGDIR);
         log(buff, c, 1);
         return 3;
     }
@@ -353,6 +362,7 @@ int main(void)
 
     return error;
     
+
 }
 
 

@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------------
- * PKT-TO-MAIL v0.2                                            Jan 30th, 2000
+ * PKT-TO-MAIL v0.2                                            Mar 25th, 2000
  * --------------------------------------------------------------------------
  *   
  *   This program routes via email any FTN Network packet, with MIME64
@@ -26,9 +26,9 @@
  * --------------------------------------------------------------------------  
  */
 
-/* Full path to a text file that will be used as the email body */
-#define DESCFILE  "/etc/fido/pkt2mail.msg"
-//#define DESCFILE  "/home/fido/cfg/pkt2mail.msg"
+#ifndef CFGDIR
+  #define CFGDIR  "/etc/fido/"
+#endif
 
 /* A text string that defines the email subject*/
 #define SUBJECT   "FidoNet Packet"
@@ -41,17 +41,10 @@
 #define VERSION   "0.2"
 #define strip(s)  s[strlen(s)-1] = 0
 
-/* pkt2mail.c */
-
-//int log(char *string, char *dir);
+int log(char *string, s_fidoconfig *c, int level);
 int printBody(FILE *output);
 int encodeAndSend(s_fidoconfig *c, char *fileName, int n);
 int processEcho(s_fidoconfig *c, int n);
 int porcessNetmail(s_fidoconfig *c, int n);
 int send(s_fidoconfig *c);
 int main(void);
-
-/* mime.c */
-
-int to64(FILE *infile, FILE *outfile);
-void output64chunk(int c1, int c2, int c3, int pads, FILE *outfile);

@@ -1,6 +1,6 @@
 include ../huskymak.cfg
 
-CDEFS   = -D$(OSTYPE) $(ADDCDEFS)
+CDEFS   = -D$(OSTYPE) $(ADDCDEFS) -DCFGDIR=\"$(CFGDIR)\" 
 
 ifeq ($(DEBUG), 1)
   CFLAGS  = -I$(INCDIR) $(WARNFLAGS) $(DEBCFLAGS)
@@ -33,7 +33,7 @@ distclean: clean
 	
 install:
 	$(INSTALL) $(IBOPT) pkt2mail $(BINDIR)
-	$(INSTALL) pkt2mail.msg $(CFGDIR)
+	$(INSTALL) -m0644 pkt2mail.msg $(CFGDIR)
 	gzip -c pkt2mail.1 > pkt2mail.1.gz
 	$(INSTALL) $(IMOPT) pkt2mail.1.gz $(MANDIR)/man1
 

@@ -10,15 +10,13 @@
                                  -> fidoconfig/
                                  -> pkt2mail/
 
-2.  if you have your main fidoconfig file outside /etc/fido edit pkt2mail.h
-    and change the #define's to fit your needs
-
-3.  make, install and/or clean:
+2.  make, install and/or clean:
 	$ make
-	# make install
+	$ make install
 	$ make clean
 	
     Compiling pkt2mail without husky support makes no sense, so be sure to
-    use makefile.husky as the main makefile. 
+    use makefile.husky as the main makefile. Furthermore, the linux makefile
+    won't be updated anymore and it is _not_ recommended to use it.
 
-4.  Configure it. Details can be found in README.
+3.  Configure it. Details can be found in README.
