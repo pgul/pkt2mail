@@ -1,0 +1,28 @@
+# Change to your needs
+CFGDIR  = /etc/fido
+
+include ../huskymak.cfg
+
+CC      = gcc 
+OPT     = -O2
+WARN    = -Wall
+LIBS    = -lsmapilnx -lfidoconfig
+
+
+all: pkt2mail 
+
+pkt2mail: pkt2mail.c
+	$(CC) -DUNIX -I$(INCDIR) -L$(LIBDIR) $(LIBS) $(IBOPT) $(OPT) $(WARN) -o pkt2mail pkt2mail.c
+
+clean:
+	-rm -f *.o
+	-rm *.1.gz
+
+distclean: clean
+	-rm pkt2mail
+	
+install:
+	install -s pkt2mail $(BINDIR)
+	cp pkt2mail.msg $(CFGDIR)
+	gzip -c pkt2mail.1 > pkt2mail.1.gz
+	install pkt2mail.1.gz $(MANDIR)/man1

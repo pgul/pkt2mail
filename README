@@ -1,0 +1,51 @@
+PKT-TO-MAIL v0.1
+----------------
+
+This program will use a MTA (for example sendmail) for sending mime encoded
+packets of any FTN, from a Binkley Style Outbound. It needs a working version
+of fidoconfig (v0.91) and smapilnx to compile.
+
+To get it running, first install it. See INSTALL for details.
+
+
+Config
+------
+
+Once you have the binary, you should configure it. To do so, go to your
+fidoconfig file, and add the string Email to each link you want to route
+by email. Say, for example, you want to send your pkts to your boss via
+email because he lives too far away from you, and don't want to pay long
+distance bills. Put this line in his link definition in your config file:
+
+Link    Your boss' name
+Aka     1:2/3
+ourAka  1:2/3.4
+Email   hismail@address.com
+
+The other file to change, 'pkt2mail.msg' is the text that will appear in the
+body of the message. If the receiving system uses an automated email system
+(like mail2pkt, transnet or fido2int) it will ignore it, but when mailing a
+non automated system, this text will make sense.
+
+
+Notes
+-----
+
+PKT2MAIL will process each link that finds in fidoconfig. If it finds an
+echomail hold flavour, it won't mail anything. So, if you don't want to
+process a link, wether don't put his email address in your fidoconfig file or,
+mark his echomail flavour as hold in fidoconfig.
+
+Actually, when sending netmail packets, only crash packets are mailed. However,
+this may change in the future.
+
+
+Feedback
+--------
+
+I wanna know who's using my program, so please write me. I hope to hear back
+from you.
+
+German Theler
+kuroshivo@bigfoot.com
+4:905/210

@@ -1,0 +1,24 @@
+0a. make sure you have both smapi and fidoconfig libraries installed and
+    working. At least, fidoconfig 0.91 is needed
+0b. also, you will need huskymak.cfg that comes with husky-common.tar.gz
+    to compile
+
+1.  put the pkt2mail package in the directory where the other packages of fido
+    linux reside:
+
+       /usr/src/packages/        -> smapi/
+                                 -> fidoconfig/
+                                 -> pkt2mail/
+
+2.  edit pkt2mail.h and change the #define's to fit your needs
+
+3a. take a look at the makefile and change the cfg directory to the path where
+    your main fidoconfig file resides, and make sure it is the same that
+    appears in pkt2mail.h
+
+3b. make, install and/or clean:
+	$ make
+	# make install
+	$ make clean
+
+4. Configure it. Details can be found in README.
