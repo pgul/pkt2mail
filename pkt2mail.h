@@ -26,8 +26,8 @@
  * --------------------------------------------------------------------------  
  */
 
-//#define DESCFILE  "/etc/fido/pkt2mail.msg"
-#define DESCFILE  "/home/fido/cfg/pkt2mail.msg"
+#define DESCFILE  "/etc/fido/pkt2mail.msg"
+//#define DESCFILE  "/home/fido/cfg/pkt2mail.msg"
 #define SENDMAIL  "/usr/sbin/sendmail"
 #define SUBJECT   "FidoNet Packet - PKT2Mail"
 
